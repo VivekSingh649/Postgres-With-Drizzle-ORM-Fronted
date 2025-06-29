@@ -1,56 +1,43 @@
 import React from "react";
 import AddUser from "./AddUser";
 import { useParams } from "react-router";
+import { useSingleUser, useUpdateUser } from "../hooks/useUsers";
+import Loader from "../components/user/Loader";
+import ErrorMessage from "../components/user/ErrorMessage";
 
 function UpdateUser() {
   const { id } = useParams();
+  const updateMutation = useUpdateUser();
+  const { isLoading, isError, data, error } = useSingleUser(id);
 
-  const userData = {
-    fullName: "Test User 4",
-    age: 32,
-    email: "test4@example.com",
-    phone: "1234567890",
-    isActive: false,
-    gender: "female",
-    address: {
-      zip: "123456",
-      city: "Test City",
-      state: "TS",
-      street: "101 Test St",
-      country: "Test Country",
-    },
-    preferences: {
-      darkMode: false,
-      language: "english",
-      newsletterSubscribed: true,
-    },
-    hobbies: ["testing", "coding"],
-    education: [
-      {
-        year: 2023,
-        degree: "Test Degree",
-        stream: "Testing",
-        institute: "Test University",
-      },
-    ],
-    socialProfiles: {
-      github: "https://github.com/test4",
-      twitter: "https://twitter.com/test4",
-      linkedIn: "https://linkedin.com/in/test4",
-    },
-  };
+  if (isError) {
+    return <ErrorMessage message={error.message} />;
+  }
 
-  const handleUpdate = (e) => {
-    console.log("Update user", e);
+  let userData = data ? data.data : {};
+  const handleUpdate = async (formData) => {
+    const { createdAt, updatedAt, ...cleanData } = formData;
+    try {
+      await updateMutation.mutateAsync({ ...cleanData, id });
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
   };
 
   return (
     <>
-      <AddUser
-        pageTitle="Update Vivek"
-        handleUpdate={handleUpdate}
-        userData={userData}
-      />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <AddUser
+          pageTitle={
+            userData?.fullName ? `Update ${userData.fullName}` : "Update User"
+          }
+          handleUpdate={handleUpdate}
+          userData={userData}
+          isPending={updateMutation.isPending}
+        />
+      )}
     </>
   );
 }

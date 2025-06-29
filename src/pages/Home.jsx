@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
 import { Link } from "react-router";
 import Users from "./Users";
-import { fetchAllUsers } from "../api/usersApi";
+import { useUsers } from "../hooks/useUsers";
 function Home() {
   const breadcrumbs = [{ label: "Dashboard", link: null }];
-
-  console.log(fetchAllUsers);
 
   const headerActions = (
     <Link

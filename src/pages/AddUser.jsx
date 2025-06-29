@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AppLayout from "../components/layout/AppLayout";
 import { userSchema } from "../validator/userSchema";
+import { useCreateUser } from "../hooks/useUsers";
 
-function AddUser({ handleUpdate, pageTitle, userData }) {
+function AddUser({ handleUpdate, pageTitle, userData, isPending }) {
+  const createMutation = useCreateUser();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     control,
-    watch,
     setValue,
   } = useForm({
     resolver: yupResolver(userSchema),
@@ -24,23 +25,30 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
           isActive: false,
           gender: "",
           address: {
+            zip: "",
             city: "",
             state: "",
-            zip: "",
-            country: "",
             street: "",
+            country: "",
           },
-          education: [{ degree: "", stream: "", year: "", institute: "" }],
           preferences: {
-            language: "",
-            newsletterSubscribed: false,
             darkMode: false,
+            language: "english",
+            newsletterSubscribed: false,
           },
-          hobbies: ["Car", "Bike", "Traveling"],
+          hobbies: [],
+          education: [
+            {
+              year: "",
+              degree: "",
+              stream: "",
+              institute: "",
+            },
+          ],
           socialProfiles: {
-            linkedin: "",
-            github: "",
-            twitter: "",
+            github: "https://github.com/VivekSingh649",
+            twitter: "https://x.com/VivekSi52628952",
+            linkedIn: "https://www.linkedin.com/in/vivek-singh-299651245",
           },
         },
   });
@@ -63,11 +71,11 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
     name: "hobbies",
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (handleUpdate) {
       handleUpdate(data);
     } else {
-      console.log("Create user", data);
+      await createMutation.mutateAsync(data);
     }
   };
 
@@ -218,28 +226,15 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
 
                   <div className="form-control">
                     <label className="form-label">Status</label>
-                    <ul className="form-radio-group">
-                      {["true", "false"].map((val) => (
-                        <li key={val} className="form-radio-item">
-                          <div className="flex items-center h-5">
-                            <input
-                              id={`isActive-${val}`}
-                              name="isActive"
-                              type="radio"
-                              value={val}
-                              className="form-radio-input"
-                              {...register("isActive")}
-                            />
-                          </div>
-                          <label
-                            htmlFor={`isActive-${val}`}
-                            className="ms-3 block text-sm text-gray-600 capitalize"
-                          >
-                            {val}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex items-center mt-2">
+                      <label className="toggle-switch">
+                        <input type="checkbox" {...register("isActive")} />
+                        <span className="toggle-slider" />
+                      </label>
+                      <span className="ml-3 text-sm text-slate-600">
+                        Enable user active
+                      </span>
+                    </div>
                     <ErrorMessage error={errors.isActive} />
                   </div>
                 </div>
@@ -311,7 +306,7 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
                       }`}
                       {...register("address.country")}
                     >
-                      <option value="" disabled="">
+                      <option value="" disabled>
                         Select country
                       </option>
                       <option value="india">India</option>
@@ -319,8 +314,10 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
                       <option value="uk">United Kingdom</option>
                       <option value="canada">Canada</option>
                       <option value="australia">Australia</option>
+                      <option value="country">Country</option>
                       <option value="other">Other</option>
                     </select>
+                    <ErrorMessage error={errors.address?.country} />
                   </div>
                   <div className="md:col-span-2 form-control">
                     <label htmlFor="street" className="form-label">
@@ -403,7 +400,7 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
                         <div className="form-control">
                           <label className="form-label">Year</label>
                           <input
-                            type="text"
+                            type="number"
                             className={`form-input ${
                               errors.education?.[index]?.year
                                 ? "border-red-500"
@@ -466,7 +463,7 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
               <div className="p-6">
                 <div id="hobbiesContainer">
                   {/* Hobby Item 1 */}
-                  <div className="flex items-end gap-4">
+                  <div className="flex items-end gap-2">
                     <div className="form-control w-4/5">
                       <label htmlFor="hobby-input" className="form-label">
                         Hobbies
@@ -487,6 +484,7 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
                           }
                         }}
                       />
+                      <ErrorMessage error={errors?.hobbies} />
                     </div>
                     <button
                       type="button"
@@ -611,16 +609,16 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
                       </label>
                       <input
                         type="text"
-                        id="linkedin"
+                        id="linkedIn"
                         className={`form-input ${
-                          errors.socialProfiles?.linkedin
+                          errors.socialProfiles?.linkedIn
                             ? "border-red-500"
                             : ""
                         }`}
                         placeholder="https://linkedin.com/in/username"
-                        {...register("socialProfiles.linkedin")}
+                        {...register("socialProfiles.linkedIn")}
                       />
-                      <ErrorMessage error={errors.socialProfiles?.linkedin} />
+                      <ErrorMessage error={errors.socialProfiles?.linkedIn} />
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -677,8 +675,15 @@ function AddUser({ handleUpdate, pageTitle, userData }) {
               <button
                 type="submit"
                 className="px-6 py-3 bg-gradient text-white rounded-xl shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transition-all font-medium cursor-pointer"
+                disabled={isSubmitting}
               >
-                {pageTitle ? "Update User" : "Create User"}
+                {pageTitle
+                  ? isPending
+                    ? "Updating..."
+                    : "Update User"
+                  : isSubmitting
+                  ? "Creating..."
+                  : "Create User"}
               </button>
             </div>
           </form>

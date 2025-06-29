@@ -4,12 +4,7 @@ import { Home, Users, User, Edit, Plus } from "lucide-react";
 const Sidebar = () => {
   const location = useLocation();
 
-  const menus = [
-    { name: "Dashboard", icon: <Home />, path: "/" },
-    { name: "Profile", icon: <User />, path: "/profile/:id" },
-    { name: "Update User", icon: <Edit />, path: "/update-user/:id" },
-    { name: "Add User", icon: <Plus />, path: "/create-user" },
-  ];
+  const menus = [{ name: "Dashboard", icon: <Home />, path: "/" }];
 
   return (
     <aside className="fixed h-screen w-72 glass shadow-glass-lg z-20 border-r border-white/20">
@@ -22,7 +17,7 @@ const Sidebar = () => {
           <ul className="space-y-1 main-menu">
             {menus.map((menu) => (
               <li key={menu.name}>
-                <NavLink to={menu.path} className="menu-item">
+                <NavLink to={menu.path} className="menu-item active">
                   <span className="menu-icon">{menu.icon}</span>
                   <span>{menu.name}</span>
                 </NavLink>

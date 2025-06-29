@@ -1,63 +1,17 @@
 import React, { useState } from "react";
 import UserTableRow from "../components/user/UserTableRow";
 import Pagination from "../components/Pagination";
+import { useUsers } from "../hooks/useUsers";
+import UserTableRowSkeleton from "../skeleton/UserTableRowSkeleton";
+import ErrorMessage from "../components/user/ErrorMessage";
+import { User2, Users2 } from "lucide-react";
 
 function Users() {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
+  const { isLoading, isError, data, error } = useUsers();
 
-  const users = [
-    {
-      id: 1,
-      name: "Aarav Sharma",
-      email: "aarav.sharma@example.com",
-      role: "Developer",
-      status: "active",
-      location: "New Delhi, India",
-      avatar: "AS",
-      lastLogin: "2 hours ago",
-    },
-    {
-      id: 2,
-      name: "Priya Patel",
-      email: "priya.patel@example.com",
-      role: "Designer",
-      status: "active",
-      location: "Mumbai, India",
-      avatar: "PP",
-      lastLogin: "2 hours ago",
-    },
-    {
-      id: 3,
-      name: "Rahul Verma",
-      email: "rahul.verma@example.com",
-      role: "Manager",
-      status: "inactive",
-      location: "Bangalore, India",
-      avatar: "RV",
-      lastLogin: "2 hours ago",
-    },
-    {
-      id: 4,
-      name: "Ananya Singh",
-      email: "ananya.singh@example.com",
-      role: "Product Owner",
-      status: "active",
-      location: "Hyderabad, India",
-      avatar: "AS",
-      lastLogin: "2 hours ago",
-    },
-    {
-      id: 5,
-      name: "Vikram Malhotra",
-      email: "vikram.malhotra@example.com",
-      role: "Developer",
-      status: "inactive",
-      location: "Chennai, India",
-      avatar: "VM",
-      lastLogin: "2 hours ago",
-    },
-  ];
+  if (isError) {
+    return isError && <ErrorMessage message={error?.message} />;
+  }
 
   return (
     <>
@@ -90,22 +44,22 @@ function Users() {
                   <th className="px-6 py-4 text-left">User</th>
                   <th className="px-6 py-4 text-left">Status</th>
                   <th className="px-6 py-4 text-left">Location</th>
-                  <th className="px-6 py-4 text-left">Last Login</th>
+                  <th className="px-6 py-4 text-left">Create At</th>
                   <th className="px-6 py-4 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <UserTableRow
-                    key={user.id}
-                    userAvatar={user.avatar}
-                    userName={user.name}
-                    userEmail={user.email}
-                    userStatus={user.status}
-                    userLocation={user.location}
-                    userLastActive={user.lastLogin}
-                  />
-                ))}
+                {isLoading ? (
+                  Array.from({ length: 8 }).map((_, index) => (
+                    <UserTableRowSkeleton key={index} />
+                  ))
+                ) : data?.data?.length > 0 ? (
+                  data?.data?.map((user) => (
+                    <UserTableRow user={user} key={user.id} />
+                  ))
+                ) : (
+                  <ErrorMessage message={data?.message} type="message" />
+                )}
               </tbody>
             </table>
           </div>

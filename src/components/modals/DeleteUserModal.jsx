@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
 
-const DeleteUserModal = ({ isOpen, onClose, onConfirm, userName }) => {
+const DeleteUserModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  userName,
+  isLoading,
+}) => {
   const modalRef = useRef(null);
   const contentRef = useRef(null);
 
@@ -58,9 +64,10 @@ const DeleteUserModal = ({ isOpen, onClose, onConfirm, userName }) => {
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 px-4 py-3 rounded-xl bg-danger-500 text-white hover:bg-danger-600 transition-all text-sm font-medium"
+            className="flex-1 px-4 py-3 rounded-xl bg-danger-500 text-white hover:bg-danger-600 transition-all text-sm font-medium cursor-pointer"
           >
-            Delete User
+            {isLoading ? "Deleting..." : "Delete"}{" "}
+            {userName ? userName : "User"}
           </button>
         </div>
       </div>
