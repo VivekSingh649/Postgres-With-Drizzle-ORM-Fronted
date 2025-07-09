@@ -89,7 +89,7 @@ function AddUser({ handleUpdate, pageTitle, userData, isPending }) {
       type="submit"
       form="addUserForm"
       className="flex items-center px-4 py-2 bg-gradient text-white rounded-xl shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transition-all cursor-pointer"
-      onClick={onSubmit}
+      // onClick={onSubmit}
     >
       <i className="fas fa-plus mr-2 text-xs"></i>
       <span className="font-medium">

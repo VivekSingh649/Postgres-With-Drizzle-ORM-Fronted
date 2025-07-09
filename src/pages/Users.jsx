@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserTableRow from "../components/user/UserTableRow";
 import Pagination from "../components/Pagination";
 import { useUsers } from "../hooks/useUsers";
@@ -7,7 +7,14 @@ import ErrorMessage from "../components/user/ErrorMessage";
 import { User2, Users2 } from "lucide-react";
 
 function Users() {
-  const { isLoading, isError, data, error } = useUsers();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
+  const { isLoading, isError, data, error } = useUsers({ page, limit });
+
+  const handlePageChange = (page) => {
+    if (page < 1) return;
+    setPage(page);
+  };
 
   if (isError) {
     return isError && <ErrorMessage message={error?.message} />;
@@ -50,7 +57,7 @@ function Users() {
               </thead>
               <tbody>
                 {isLoading ? (
-                  Array.from({ length: 8 }).map((_, index) => (
+                  Array.from({ length: limit }).map((_, index) => (
                     <UserTableRowSkeleton key={index} />
                   ))
                 ) : data?.data?.length > 0 ? (
@@ -63,7 +70,12 @@ function Users() {
               </tbody>
             </table>
           </div>
-          <Pagination />
+          <Pagination
+            length={data?.total || 0}
+            limit={data?.limit || 5}
+            page={data?.page || 1}
+            handlePage={handlePageChange}
+          />
         </div>
       </div>
     </>

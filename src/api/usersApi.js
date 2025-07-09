@@ -11,8 +11,8 @@ const withDelay = async (promise) => {
 };
 
 // Fetch all users
-export const fetchAllUsers = async () =>
-  instance.get("/users").then((res) => res.data);
+export const fetchAllUsers = async ({ page, limit }) =>
+  instance.get(`/users?page=${page}&limit=${limit}`).then((res) => res.data);
 
 // Get single user by ID
 export const getSingleUser = async (id) =>

@@ -9,10 +9,11 @@ import {
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 
-export const useUsers = () =>
+export const useUsers = ({ page, limit }) =>
   useQuery({
-    queryKey: ["users"],
-    queryFn: () => fetchAllUsers(),
+    queryKey: ["users", { page, limit }],
+    queryFn: () => fetchAllUsers({ page, limit }),
+    keepPreviousData: true,
   });
 
 export const useSingleUser = (id) =>
